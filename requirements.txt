@@ -1,0 +1,7 @@
+streamlit
+pandas
+plotly
+firebase-admin
+python-dotenv
+pytest
+ruff
