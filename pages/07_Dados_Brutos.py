@@ -1,11 +1,11 @@
 import json
 
-import pandas as pd
 import streamlit as st
 
 from src.data_loader import load_firestore_sessions
 from src.data_transform import normalize_answers, normalize_ranking, normalize_sessions
 from src.filters import apply_sidebar_filters, filter_related_data
+from src.utils import make_json_serializable
 
 
 st.title("Dados brutos")
@@ -44,6 +44,14 @@ tab_raw, tab_sessions, tab_answers, tab_ranking = st.tabs(
 
 with tab_raw:
     st.subheader("Documentos brutos")
+    st.caption(
+        "Mostra o documento original salvo no Firestore. "
+        "Datas do Firestore são convertidas para texto no formato ISO."
+    )
+
+    if not filtered_raw_sessions:
+        st.info("Nenhum documento bruto encontrado para os filtros selecionados.")
+        st.stop()
 
     selected_session_id = st.selectbox(
         "Selecione uma sessão",
@@ -51,12 +59,20 @@ with tab_raw:
     )
 
     selected_session = next(
-        session for session in filtered_raw_sessions if session.get("id") == selected_session_id
+        session
+        for session in filtered_raw_sessions
+        if session.get("id") == selected_session_id
     )
 
-    st.json(selected_session)
+    serializable_session = make_json_serializable(selected_session)
 
-    raw_json = json.dumps(selected_session, ensure_ascii=False, indent=2)
+    st.json(serializable_session)
+
+    raw_json = json.dumps(
+        serializable_session,
+        ensure_ascii=False,
+        indent=2,
+    )
 
     st.download_button(
         "Baixar JSON desta sessão",
@@ -67,12 +83,43 @@ with tab_raw:
 
 with tab_sessions:
     st.subheader("DataFrame de sessões")
-    st.dataframe(filtered_sessions_df, use_container_width=True, hide_index=True)
+    st.caption(
+        "Tabela normalizada com uma linha por sessão. "
+        "É a base principal para filtros, métricas e análises gerais."
+    )
+
+    st.dataframe(
+        filtered_sessions_df,
+        use_container_width=True,
+        hide_index=True,
+    )
 
 with tab_answers:
     st.subheader("DataFrame de respostas")
-    st.dataframe(filtered_answers_df, use_container_width=True, hide_index=True)
+    st.caption(
+        "Tabela normalizada com uma linha por resposta dada aos cards."
+    )
+
+    if filtered_answers_df.empty:
+        st.info("Nenhuma resposta encontrada para os filtros selecionados.")
+    else:
+        st.dataframe(
+            filtered_answers_df,
+            use_container_width=True,
+            hide_index=True,
+        )
 
 with tab_ranking:
     st.subheader("DataFrame de ranking")
-    st.dataframe(filtered_ranking_df, use_container_width=True, hide_index=True)
+    st.caption(
+        "Tabela normalizada com uma linha para cada jogo no ranking de cada sessão."
+    )
+
+    if filtered_ranking_df.empty:
+        st.info("Nenhum ranking encontrado para os filtros selecionados.")
+    else:
+        st.dataframe(
+            filtered_ranking_df,
+            use_container_width=True,
+            hide_index=True,
+        )
