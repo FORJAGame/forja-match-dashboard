@@ -1,7 +1,7 @@
 import plotly.express as px
 import streamlit as st
 
-from src.data_loader import load_mock_sessions
+from src.data_loader import load_firestore_sessions
 from src.data_transform import normalize_sessions
 from src.filters import apply_sidebar_filters
 
@@ -9,7 +9,7 @@ from src.filters import apply_sidebar_filters
 st.title("Jogos")
 st.caption("Análise dos jogos mais indicados pelo FORJA Match.")
 
-sessions = load_mock_sessions()
+sessions = load_firestore_sessions()
 sessions_df = normalize_sessions(sessions)
 filtered_df = apply_sidebar_filters(sessions_df)
 

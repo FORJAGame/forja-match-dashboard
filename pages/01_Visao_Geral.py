@@ -1,6 +1,6 @@
 import streamlit as st
 
-from src.data_loader import load_mock_sessions
+from src.data_loader import load_firestore_sessions
 from src.data_transform import normalize_answers, normalize_ranking, normalize_sessions
 from src.filters import apply_sidebar_filters, filter_related_data
 from src.metrics import calculate_completion_rate, get_peak_hour, get_top_game
@@ -8,7 +8,7 @@ from src.metrics import calculate_completion_rate, get_peak_hour, get_top_game
 st.title("Visão geral")
 st.caption("Resumo dos dados coletados pelo FORJA Match.")
 
-sessions = load_mock_sessions()
+sessions = load_firestore_sessions()
 
 sessions_df = normalize_sessions(sessions)
 answers_df = normalize_answers(sessions)

@@ -1,5 +1,7 @@
-from datetime import datetime, timedelta, timezone
+import streamlit as st
 
+from src.firebase_client import get_firestore_client, get_sessions_collection_name
+from datetime import datetime, timedelta, timezone
 
 def load_mock_sessions() -> list[dict]:
     base_time = datetime(2026, 7, 1, 14, 0, tzinfo=timezone.utc)
@@ -80,3 +82,19 @@ def load_mock_sessions() -> list[dict]:
             "updatedAt": (base_time + timedelta(hours=1, seconds=80)).isoformat(),
         },
     ]
+
+@st.cache_data(ttl=300)
+def load_firestore_sessions() -> list[dict]:
+    db = get_firestore_client()
+    collection_name = get_sessions_collection_name()
+
+    documents = db.collection(collection_name).stream()
+
+    sessions = []
+
+    for document in documents:
+        data = document.to_dict()
+        data["documentId"] = document.id
+        sessions.append(data)
+
+    return sessions

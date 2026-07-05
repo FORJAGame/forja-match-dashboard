@@ -1,13 +1,13 @@
 import streamlit as st
 
-from src.data_loader import load_mock_sessions
+from src.data_loader import load_firestore_sessions
 from src.data_transform import normalize_answers, normalize_ranking, normalize_sessions
 
 
 st.title("Dados brutos")
 st.caption("Visualização dos dados simulados e normalizados.")
 
-sessions = load_mock_sessions()
+sessions = load_firestore_sessions()
 
 sessions_df = normalize_sessions(sessions)
 answers_df = normalize_answers(sessions)
